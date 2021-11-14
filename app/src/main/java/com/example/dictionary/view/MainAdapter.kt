@@ -9,10 +9,10 @@ import com.example.dictionary.R
 import com.example.dictionary.model.DataModel
 
 class MainAdapter(
-    private var onListItemClickListener: OnListItemClickListener,
-    private var data: List<DataModel>
-): RecyclerView.Adapter<MainAdapter.RecyclerItemViewHolder>() {
-    fun setData(data: List<DataModel>){
+    private var onListItemClickListener: OnListItemClickListener
+) : RecyclerView.Adapter<MainAdapter.RecyclerItemViewHolder>() {
+    private var data: List<DataModel> = arrayListOf()
+    fun setData(data: List<DataModel>) {
         this.data = data
         notifyDataSetChanged()
     }
@@ -35,11 +35,12 @@ class MainAdapter(
         return data.size
     }
 
-    inner class RecyclerItemViewHolder(view: View): RecyclerView.ViewHolder(view){
+    inner class RecyclerItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(data: DataModel) {
-            if(layoutPosition != RecyclerView.NO_POSITION){
+            if (layoutPosition != RecyclerView.NO_POSITION) {
                 itemView.findViewById<TextView>(R.id.header_textview_recycler_item).text = data.text
-                itemView.findViewById<TextView>(R.id.description_textview_recycler_item).text = data.meanings?.get(0)?.translation?.translation
+                itemView.findViewById<TextView>(R.id.description_textview_recycler_item).text =
+                    data.meanings?.get(0)?.translation?.translation
                 itemView.setOnClickListener { openInNewWindow(data) }
             }
         }
@@ -48,6 +49,7 @@ class MainAdapter(
     private fun openInNewWindow(listItemData: DataModel) {
         onListItemClickListener.onItemClick(listItemData)
     }
+
     interface OnListItemClickListener {
         fun onItemClick(data: DataModel)
     }

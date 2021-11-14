@@ -1,31 +1,34 @@
 package com.example.dictionary.model
 
-import io.reactivex.Observable
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import android.app.PendingIntent.getService
+import android.app.appsearch.SearchResult
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
 
 class RetrofitImplementation : DataSource<List<DataModel>> {
 
-    override fun getData(word: String): Observable<List<DataModel>> {
-        return createRetrofit().create<ApiService>().search(word)
+    override suspend fun getData(word: String): List<DataModel> {
+        return getService(BaseInterceptor.interceptor).searchAsync(word).await()
     }
 
-    private fun createRetrofit(): Retrofit {
+    private fun getService(interceptor: Interceptor): ApiService {
+        return createRetrofit(interceptor).create(ApiService::class.java)
+    }
+    private fun createRetrofit(interceptor: Interceptor): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://dictionary.skyeng.ru/api/public/v1/")
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .client(createOkHttpClient())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .client(createOkHttpClient(interceptor))
             .build()
     }
 
-    private fun createOkHttpClient(): OkHttpClient {
+    private fun createOkHttpClient(interceptor: Interceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()
