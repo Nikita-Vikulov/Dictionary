@@ -4,19 +4,21 @@ import com.example.dictionary.presenter.Interactor
 import com.example.dictionary.model.AppState
 import com.example.dictionary.model.DataModel
 import com.example.dictionary.model.Repository
+import com.example.dictionary.model.room.RepositoryLocal
 
 class MainInteractor(
-    private val remoteRepository: Repository<List<DataModel>>,
-    private val localRepository: Repository<List<DataModel>>
+    private val repositoryRemote: Repository<List<DataModel>>,
+    private val repositoryLocal: RepositoryLocal<List<DataModel>>
 ) : Interactor<AppState> {
 
-    override suspend fun getData(word: String, fromRemoteSource: Boolean): AppState.Success {
-        return AppState.Success(
-            if (fromRemoteSource) {
-            remoteRepository
+    override suspend fun getData(word: String, fromRemoteSource: Boolean): AppState {
+        val appState: AppState
+        if (fromRemoteSource) {
+            appState = AppState.Success(repositoryRemote.getData(word))
+            repositoryLocal.saveToDB(appState)
         } else {
-            localRepository
-        }.getData(word)
-        )
+            appState = AppState.Success(repositoryLocal.getData(word))
+        }
+        return appState
     }
 }
