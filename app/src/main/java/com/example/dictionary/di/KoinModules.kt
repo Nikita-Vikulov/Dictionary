@@ -1,32 +1,31 @@
 package com.example.dictionary.di
 
 import androidx.room.Room
-import com.example.dictionary.model.*
-import com.example.dictionary.model.room.HistoryDataBase
-import com.example.dictionary.model.room.RepositoryImplementationLocal
-import com.example.dictionary.model.room.RepositoryLocal
-import com.example.dictionary.view.history.HistoryInteractor
-import com.example.dictionary.view.history.HistoryViewModel
-import com.example.dictionary.view.MainInteractor
-import com.example.dictionary.view.MainViewModel
+import com.example.data.*
+import com.example.dictionary.interactor.main.MainInteractor
+import com.example.dictionary.ui.main.MainViewModel
+import com.example.history.interactor.HistoryInteractor
+import com.example.history.ui.HistoryViewModel
+import com.example.models.*
 import org.koin.dsl.module
 
 val application = module {
-    single { Room.databaseBuilder(get(), HistoryDataBase::class.java, "HistoryDB").build() }
-    single { get<HistoryDataBase>().historyDao() }
-    single<Repository<List<DataModel>>> { RepositoryImplementation(RetrofitImplementation()) }
-    single<RepositoryLocal<List<DataModel>>> { RepositoryImplementationLocal(
-        RoomDataBaseImplementation(get())
-    )
-    }
+    single { Room.databaseBuilder(get(), HistoryDatabase::class.java, "HistoryDB").build() }
+    single { get<HistoryDatabase>().historyDao() }
+
+    single<DataSource<List<DataModel>>>() { RetrofitImplementation() }
+    single<Repository<List<DataModel>>>() { RemoteRepoImpl(get()) }
+
+    single<DataSourceLocal<List<DataModel>>>() { RoomDataSource(get()) }
+    single<RepositoryLocal<List<DataModel>>>() { LocalRepoImpl(get()) }
 }
 
 val mainScreen = module {
-    factory { MainViewModel(get()) }
     factory { MainInteractor(get(), get()) }
+    factory { MainViewModel(get()) }
 }
 
 val historyScreen = module {
+    factory<IHistoryInteractor> { HistoryInteractor(get()) }
     factory { HistoryViewModel(get()) }
-    factory { HistoryInteractor(get(), get()) }
 }
