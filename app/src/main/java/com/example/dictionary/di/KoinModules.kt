@@ -1,31 +1,40 @@
 package com.example.dictionary.di
 
 import androidx.room.Room
-import com.example.data.*
-import com.example.dictionary.interactor.main.MainInteractor
+import com.example.dictionary.ui.main.MainActivity
+import com.example.dictionary.ui.main.MainInteractor
 import com.example.dictionary.ui.main.MainViewModel
-import com.example.history.interactor.HistoryInteractor
-import com.example.history.ui.HistoryViewModel
-import com.example.models.*
+import com.example.historyscreen.history.HistoryActivity
+import com.example.historyscreen.history.HistoryInteractor
+import com.example.historyscreen.history.HistoryViewModel
+import com.example.model.dto.SearchResultDto
+import com.example.repository.*
+import com.example.repository.room.HistoryDataBase
+import org.koin.androidx.viewmodel.dsl.viewModel
+
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
+
 val application = module {
-    single { Room.databaseBuilder(get(), HistoryDatabase::class.java, "HistoryDB").build() }
-    single { get<HistoryDatabase>().historyDao() }
-
-    single<DataSource<List<DataModel>>>() { RetrofitImplementation() }
-    single<Repository<List<DataModel>>>() { RemoteRepoImpl(get()) }
-
-    single<DataSourceLocal<List<DataModel>>>() { RoomDataSource(get()) }
-    single<RepositoryLocal<List<DataModel>>>() { LocalRepoImpl(get()) }
+    single { Room.databaseBuilder(get(), HistoryDataBase::class.java, "HistoryDB").build() }
+    single { get<HistoryDataBase>().historyDao() }
+    single<Repository<List<SearchResultDto>>> { RepositoryImplementation(RetrofitImplementation()) }
+    single<RepositoryLocal<List<SearchResultDto>>> {
+        RepositoryImplementationLocal(RoomDataBaseImplementation(get()))
+    }
 }
 
 val mainScreen = module {
-    factory { MainInteractor(get(), get()) }
-    factory { MainViewModel(get()) }
+    scope(named<MainActivity>()) {
+        scoped { MainInteractor(get(), get()) }
+        viewModel { MainViewModel(get()) }
+    }
 }
 
 val historyScreen = module {
-    factory<IHistoryInteractor> { HistoryInteractor(get()) }
-    factory { HistoryViewModel(get()) }
+    scope(named<HistoryActivity>()) {
+        scoped { HistoryInteractor(get(), get()) }
+        viewModel { HistoryViewModel(get()) }
+    }
 }

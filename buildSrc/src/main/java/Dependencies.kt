@@ -1,84 +1,104 @@
 import org.gradle.api.JavaVersion
 
 object Config {
+    const val application_id = "com.example.dictionary"
+    const val compile_sdk = 31
+    const val min_sdk = 21
+    const val target_sdk = 31
+    val java_version = JavaVersion.VERSION_1_8
+}
 
-    const val compileSdk = 31
-    const val minSdk = 23
-    const val targetSdk = 31
-
-    val javaVersion = JavaVersion.VERSION_1_8
+object Releases {
+    const val version_code = 1
+    const val version_name = "1.0"
 }
 
 object Modules {
-    const val Models = ":models"
-    const val Data = ":data"
-    const val Base = ":base"
-    const val History = ":history"
+    const val app = ":app"
+    const val core = ":core"
+    const val model = ":model"
+    const val repository = ":repository"
+    const val utils = ":utils"
+
+    //Features
+    const val historyScreen = ":historyScreen"
 }
 
 object Versions {
-
-    const val retrofit = "2.9.0"
-    const val okHttpVersion = "4.9.2"
-
-    const val ktx = "1.6.0"
-    const val appCompat = "1.3.1"
+    //Design
+    const val appcompat = "1.1.0-rc01"
     const val material = "1.4.0"
-    const val constraintLayout = "2.1.1"
-    const val swipeRefreshLayout = "1.1.0"
 
-    const val coroutines = "1.5.0"
+    //Kotlin
+    const val core = "1.7.0"
+    const val stdlib = "1.5.31"
+    const val coroutinesCore = "1.5.1"
+    const val coroutinesAndroid = "1.5.0"
 
-    const val koin = "3.1.2"
+    //Retrofit
+    const val retrofit = "2.9.0"
+    const val converterGson = "2.9.0"
+    const val interceptor = "4.9.2"
+    const val adapterCoroutines = "0.9.2"
 
-    const val coil = "1.2.1"
+    //Koin
+    const val koinAndroid = "3.1.2"
+    const val koinViewModel = "2.1.6"
+
+    //Coil
+    const val coil = "0.11.0"
+
+    //Room
+    const val roomKtx = "2.3.0"
+    const val runtime = "2.3.0"
+    const val roomCompiler = "2.3.0"
+
+    //Test
+    const val jUnit = "4.13.2"
+    const val runner = "1.4.0"
+    const val espressoCore = "3.4.0"
 }
 
-object Retrofit {
-
-    const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
-    const val converterGson = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
-    const val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpVersion}"
-}
-
-object Android {
-
-    const val CoreKtx = "androidx.core:core-ktx:${Versions.ktx}"
-    const val AppCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
-    const val Material = "com.google.android.material:material:${Versions.material}"
-    const val ConstraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
-    const val SwipeRefreshLayout = "androidx.swiperefreshlayout:swiperefreshlayout:${Versions.swipeRefreshLayout}"
+object Design {
+    const val appcompat = "androidx.appcompat:appcompat:${Versions.appcompat}"
+    const val material = "com.google.android.material:material:${Versions.material}"
 }
 
 object Kotlin {
+    const val core = "androidx.core:core-ktx:${Versions.core}"
+    const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.stdlib}"
+    const val coroutines_core =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutinesCore}"
+    const val coroutines_android =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutinesAndroid}"
+}
 
-    const val Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
-    const val CoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+object Retrofit {
+    const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
+    const val converter_gson = "com.squareup.retrofit2:converter-gson:${Versions.converterGson}"
+    const val adapter_coroutines =
+        "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${Versions.adapterCoroutines}"
+    const val logging_interceptor =
+        "com.squareup.okhttp3:logging-interceptor:${Versions.interceptor}"
 }
 
 object Koin {
-
-    const val Core = "io.insert-koin:koin-core:${Versions.koin}"
-    const val Android = "io.insert-koin:koin-android:${Versions.koin}"
-    const val AndroidCompat = "io.insert-koin:koin-android-compat:${Versions.koin}"
+    const val koin_android = "io.insert-koin:koin-android:${Versions.koinAndroid}"
+    const val koin_view_model = "io.insert-koin:koin-android-viewmodel:${Versions.koinViewModel}"
 }
 
 object Coil {
-
-    const val Coil = "io.coil-kt:coil:${Versions.coil}"
+    const val coil = "io.coil-kt:coil:${Versions.coil}"
 }
 
 object Room {
-
-    const val Core = "androidx.room:room-runtime:2.3.0"
-    const val Compiler = "androidx.room:room-compiler:2.3.0"
-    const val Ktx = "androidx.room:room-ktx:2.3.0"
-    const val SupportM1 = "org.xerial:sqlite-jdbc:3.34.0"
+    const val runtime = "androidx.room:room-runtime:${Versions.runtime}"
+    const val compiler = "androidx.room:room-compiler:${Versions.roomCompiler}"
+    const val room_ktx = "androidx.room:room-ktx:${Versions.roomKtx}"
 }
 
-object Tests {
-
-    const val JUnit = "junit:junit:4.13.2"
-    const val AndroidJUnit = "androidx.test.ext:junit:1.1.3"
-    const val Espresso = "androidx.test.espresso:espresso-core:3.4.0"
+object TestImpl {
+    const val junit = "junit:junit:${Versions.jUnit}"
+    const val runner = "androidx.test:runner:${Versions.runner}"
+    const val espresso = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"
 }

@@ -29,8 +29,10 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/Dictionary/app/src/main/res/menu/history_menu.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Dictionary/app/src/main/res/menu/main_menu.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Dictionary/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.13148148148148148" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Dictionary/core/src/main/res/layout/loading_layout.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Dictionary/history/src/main/res/layout/ac_history.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Dictionary/history/src/main/res/layout/item_word.xml" value="0.25" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Dictionary/historyScreen/src/main/res/layout/loading_layout.xml" value="0.25" />
       </map>
     </option>
   </component>

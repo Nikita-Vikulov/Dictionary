@@ -2,45 +2,34 @@ package com.example.dictionary.ui.description
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.RenderEffect
+import android.graphics.Shader
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import coil.ImageLoader
-import coil.request.ImageRequest
-import coil.transform.CircleCropTransformation
+import coil.request.LoadRequest
 import com.example.dictionary.R
-import com.example.dictionary.databinding.AcDescriptionBinding
+import com.example.dictionary.databinding.ActivityDescriptionBinding
+import com.example.utils.network.OnlineLiveData
+import com.example.utils.ui.AlertDialogFragment
 import kotlinx.coroutines.*
-import com.example.dictionary.ui.base.isOnline
 
 class DescriptionActivity : AppCompatActivity() {
 
-    private val binding by lazy { AcDescriptionBinding.inflate(layoutInflater) }
+    private lateinit var binding: ActivityDescriptionBinding
 
-    private val word by lazy { intent.extras?.getString(KEY_WORD).orEmpty() }
-    private val description by lazy { intent.extras?.getString(KEY_DESCRIPTION).orEmpty() }
-    private val imageUrl by lazy { intent.extras?.getString(KEY_IMAGE_URL) }
-
-    private val coroutineScope = CoroutineScope(
-        Dispatchers.Main + SupervisorJob()
-    )
-
+    @RequiresApi(31)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityDescriptionBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setActionBarHomeButton()
-        binding.root.setOnRefreshListener {
-            startLoadingOrShowError()
-        }
-        binding.root.isRefreshing = true
-
+        setActionbarHomeButtonAsUp()
+        binding.descriptionScreenSwipeRefreshLayout.setOnRefreshListener { startLoadingOrShowError() }
         setData()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        coroutineScope.cancel()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -53,74 +42,88 @@ class DescriptionActivity : AppCompatActivity() {
         }
     }
 
-    private fun setActionBarHomeButton() {
+    private fun setActionbarHomeButtonAsUp() {
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    @RequiresApi(31)
     private fun setData() {
-        binding.descriptionHeader.text = word
-        binding.descriptionText.text = description
-        val imageUrl = imageUrl
-        if (imageUrl == null) {
-            stopLoading()
+        val bundle = intent.extras
+        binding.descriptionHeader.text = bundle?.getString(WORD_EXTRA)
+        binding.descriptionTextview.text = bundle?.getString(DESCRIPTION_EXTRA)
+        val imageLink = bundle?.getString(URL_EXTRA)
+        if (imageLink.isNullOrBlank()) {
+            stopRefreshAnimationIfNeeded()
         } else {
-            useCoilToLoadPhoto(imageUrl)
+            useCoilToLoadPhoto(binding.descriptionImageview, imageLink)
         }
     }
 
+    @RequiresApi(31)
     private fun startLoadingOrShowError() {
-        if (isOnline(this)) {
-            setData()
-        } else {
-            // todo
-            stopLoading()
+        OnlineLiveData(this).observe(
+            this@DescriptionActivity,
+            {
+                if (it) {
+                    setData()
+                } else {
+                    AlertDialogFragment.newInstance(
+                        getString(R.string.dialog_title_device_is_offline),
+                        getString(R.string.dialog_message_device_is_offline)
+                    ).show(
+                        supportFragmentManager,
+                        DIALOG_FRAGMENT_TAG
+                    )
+                    stopRefreshAnimationIfNeeded()
+                }
+            })
+    }
+
+    private fun stopRefreshAnimationIfNeeded() {
+        if (binding.descriptionScreenSwipeRefreshLayout.isRefreshing) {
+            binding.descriptionScreenSwipeRefreshLayout.isRefreshing = false
         }
     }
 
-    private fun stopLoading() {
-        binding.root.isRefreshing = false
-    }
-
-    private fun useCoilToLoadPhoto(imageUrl: String) {
-        val request = ImageRequest.Builder(this)
-            .data("https:$imageUrl")
+    @RequiresApi(31)
+    private fun useCoilToLoadPhoto(imageView: ImageView, imageLink: String) {
+        val request = LoadRequest.Builder(this)
+            .data("https:$imageLink")
             .target(
                 onStart = {},
                 onSuccess = { result ->
-                    stopLoading()
-                    binding.descriptionImage.setImageDrawable(result)
+                    imageView.setImageDrawable(result)
+                    val blurEffect = RenderEffect.createBlurEffect(15f, 0f, Shader.TileMode.MIRROR)
+                    imageView.setRenderEffect(blurEffect)
+                    //binding.root.setRenderEffect(blurEffect)
                 },
                 onError = {
-                    stopLoading()
-                    binding.descriptionImage.setImageResource(R.drawable.ic_launcher_foreground)
+                    imageView.setImageResource(R.drawable.ic_load_error_vector)
                 }
-            )
-            .transformations(
-                CircleCropTransformation(),
             )
             .build()
 
-        coroutineScope.launch {
-            ImageLoader(this@DescriptionActivity).enqueue(request)
-        }
+        ImageLoader(this).execute(request)
     }
 
     companion object {
 
-        private const val KEY_WORD = "KEY_WORD"
-        private const val KEY_DESCRIPTION = "KEY_DESCRIPTION"
-        private const val KEY_IMAGE_URL = "KEY_IMAGE_URL"
+        private const val DIALOG_FRAGMENT_TAG = "8c7dff51-9769-4f6d-bbee-a3896085e76e"
+
+        private const val WORD_EXTRA = "f76a288a-5dcc-43f1-ba89-7fe1d53f63b0"
+        private const val DESCRIPTION_EXTRA = "0eeb92aa-520b-4fd1-bb4b-027fbf963d9a"
+        private const val URL_EXTRA = "6e4b154d-e01f-4953-a404-639fb3bf7281"
 
         fun getIntent(
             context: Context,
             word: String,
             description: String,
-            imageUrl: String?,
-        ) = Intent(context, DescriptionActivity::class.java).apply {
-            putExtra(KEY_WORD, word)
-            putExtra(KEY_DESCRIPTION, description)
-            putExtra(KEY_IMAGE_URL, imageUrl)
+            url: String?
+        ): Intent = Intent(context, DescriptionActivity::class.java).apply {
+            putExtra(WORD_EXTRA, word)
+            putExtra(DESCRIPTION_EXTRA, description)
+            putExtra(URL_EXTRA, url)
         }
     }
 }

@@ -4,39 +4,53 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dictionary.R
-import com.example.history.databinding.ItemWordBinding
-import com.example.history.ui.DataModelCallback
-import com.example.models.DataModel
+import com.example.dictionary.utils.convertMeaningsToSingleString
+import com.example.model.userdata.DataModel
 
-class MainAdapter(
-    private val itemClickListener: (DataModel) -> Unit
-) : ListAdapter<DataModel, MainAdapter.MainViewHolder>(DataModelCallback) {
+class MainAdapter(private var onListItemClickListener: OnListItemClickListener) :
+    RecyclerView.Adapter<MainAdapter.RecyclerItemViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
-        return MainViewHolder(parent)
+    private var data: List<DataModel> = arrayListOf()
+
+    fun setData(data: List<DataModel>) {
+        this.data = data
+        notifyDataSetChanged()
     }
 
-    override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-        holder.bind(currentList[position])
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerItemViewHolder {
+        return RecyclerItemViewHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.activity_main_recyclerview_item, parent, false) as View
+        )
     }
 
-    inner class MainViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-        ItemWordBinding.inflate(parent.inflater(), parent, false).root
-    ) {
+    override fun onBindViewHolder(holder: RecyclerItemViewHolder, position: Int) {
+        holder.bind(data[position])
+    }
+
+    override fun getItemCount(): Int {
+        return data.size
+    }
+
+    inner class RecyclerItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         fun bind(data: DataModel) {
-            val binder = ItemWordBinding.bind(itemView)
-
-            binder.headerTextviewRecyclerItem.text = data.text
-            binder.descriptionTextviewRecyclerItem.text =
-                data.meaning?.firstOrNull()?.translation?.translation
-
-            binder.root.setOnClickListener { itemClickListener(data) }
+            if (layoutPosition != RecyclerView.NO_POSITION) {
+                itemView.findViewById<TextView>(R.id.header_textview_recycler_item).text = data.text
+                itemView.findViewById<TextView>(R.id.description_textview_recycler_item).text =
+                    convertMeaningsToSingleString(data.meanings)
+                itemView.setOnClickListener { openInNewWindow(data) }
+            }
         }
     }
 
-    private fun ViewGroup.inflater() = LayoutInflater.from(context)
+    private fun openInNewWindow(listItemData: DataModel) {
+        onListItemClickListener.onItemClick(listItemData)
+    }
+
+    interface OnListItemClickListener {
+        fun onItemClick(data: DataModel)
+    }
 }

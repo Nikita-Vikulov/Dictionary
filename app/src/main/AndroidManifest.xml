@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+
         android:name=".TranslatorApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,8 +16,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.main.MainActivity"
-            android:screenOrientation="portrait"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,9 +27,5 @@
         <activity
             android:name=".ui.description.DescriptionActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".view.history.HistoryActivity"
-            android:screenOrientation="portrait"/>
     </application>
-
 </manifest>
